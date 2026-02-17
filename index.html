@@ -1,16 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="et">
 <head>
-    <title>S3 Labor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 Labor - Automaatne Deployment</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background-color: #f0f2f5; }
-        .card { background: white; padding: 20px; border-radius: 10px; display: inline-block; margin-top: 50px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #f0f2f5; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            max-width: 500px;
+        }
+        h1 { color: #232f3e; margin-bottom: 20px; } /* AWS tumesinine */
+        p { color: #545b64; line-height: 1.6; }
+        .status-badge {
+            background-color: #4caf50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>Minu S3 Veebileht</h1>
+        <h1>🚀 Minu S3 Veebileht</h1>
         <p>See leht on majutatud Amazon S3-s ja uueneb automaatselt GitHubi kaudu!</p>
+        <div class="status-badge">Muudetud VS Code-is ja deployed automaatselt</div>
     </div>
 </body>
 </html>
