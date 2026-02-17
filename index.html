@@ -33,6 +33,29 @@
             font-size: 0.9em;
             display: inline-block;
             margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #ff9900; /* AWS oranž */
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ec7211;
+        }
+        #counter {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #232f3e;
         }
     </style>
 </head>
@@ -41,6 +64,25 @@
         <h1>🚀 Minu S3 Veebileht</h1>
         <p>See leht on majutatud Amazon S3-s ja uueneb automaatselt GitHubi kaudu!</p>
         <div class="status-badge">Muudetud VS Code-is ja deployed automaatselt</div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #eee; pt: 20px;">
+            <p>Proovi interaktiivsust:</p>
+            <button onclick="countClicks()" id="btn">Vajuta mind!</button>
+            <p id="counter">Klikke tehtud: 0</p>
+        </div>
     </div>
+
+    <script>
+        let clicks = 0;
+        function countClicks() {
+            clicks++;
+            document.getElementById('counter').innerText = 'Klikke tehtud: ' + clicks;
+            
+            // Väike efekt nupule vajutades
+            const btn = document.getElementById('btn');
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 100);
+        }
+    </script>
 </body>
 </html>
