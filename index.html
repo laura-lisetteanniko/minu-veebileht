@@ -3,86 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S3 Labor - Automaatne Deployment</title>
+    <title>S3 Mängukeskus - Tetris</title>
     <style>
+        /* Värviline taust ja disain */
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             text-align: center; 
-            background-color: #f0f2f5; 
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .card { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            max-width: 500px;
-        }
-        h1 { color: #232f3e; margin-bottom: 20px; } /* AWS tumesinine */
-        p { color: #545b64; line-height: 1.6; }
-        .status-badge {
-            background-color: #4caf50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            display: inline-block;
-            margin-top: 15px;
-            margin-bottom: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        canvas {
+            border: 2px solid white;
+            background-color: #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .stats { margin-bottom: 10px; font-size: 1.5em; }
         button {
-            background-color: #ff9900; /* AWS oranž */
+            background-color: #ff9900;
             border: none;
             color: white;
-            padding: 12px 24px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
+            padding: 10px 20px;
             border-radius: 8px;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #ec7211;
-        }
-        #counter {
+            cursor: pointer;
             font-weight: bold;
-            font-size: 1.2em;
-            color: #232f3e;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>🚀 Minu S3 Veebileht</h1>
-        <p>See leht on majutatud Amazon S3-s ja uueneb automaatselt GitHubi kaudu!</p>
-        <div class="status-badge">Muudetud VS Code-is ja deployed automaatselt</div>
+    <h1>🎮 S3 Tetris & Klikid</h1>
+    
+    <div class="container">
+        <div class="stats">Skoor: <span id="score">0</span></div>
+        <canvas id="tetris" width="240" height="400"></canvas>
         
-        <div style="margin-top: 20px; border-top: 1px solid #eee; pt: 20px;">
-            <p>Proovi interaktiivsust:</p>
-            <button onclick="countClicks()" id="btn">Vajuta mind!</button>
-            <p id="counter">Klikke tehtud: 0</p>
+        <div style="margin-top: 20px;">
+            <p>Klikke tehtud: <span id="counter">0</span></p>
+            <button onclick="countClicks()">Lisa klikk!</button>
         </div>
     </div>
 
     <script>
+        // --- KLIKKIDE LOENDUR ---
         let clicks = 0;
         function countClicks() {
             clicks++;
-            document.getElementById('counter').innerText = 'Klikke tehtud: ' + clicks;
-            
-            // Väike efekt nupule vajutades
-            const btn = document.getElementById('btn');
-            btn.style.transform = 'scale(0.95)';
-            setTimeout(() => btn.style.transform = 'scale(1)', 100);
+            document.getElementById('counter').innerText = clicks;
         }
+
+        // --- TETRISE LOOGIKA (LIHTSUSTATUD) ---
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        context.scale(20, 20);
+
+        function arenaSweep() {
+            let rowCount = 1;
+            outer: for (let y = arena.length - 1; y > 0; --y) {
+                for (let x = 0; x < arena[y].length; ++x) {
+                    if (arena[y][x] === 0) continue outer;
+                }
+                const row = arena.splice(y, 1)[0].fill(0);
+                arena.unshift(row);
+                ++y;
+                score += rowCount * 10;
+                rowCount *= 2;
+            }
+            updateScore();
+        }
+
+        function collide(arena, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true;
+                }
+            }
+            return false;
+        }
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) matrix.push(new Array(w).fill(0));
+            return matrix;
+        }
+
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(arena, {x: 0, y: 0});
+            drawMatrix(player.matrix, player.pos);
+        }
+
+        function drawMatrix(matrix, offset) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        context.fillStyle = 'red';
+                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        function merge(arena, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) arena[y + player.pos.y][x + player.pos.x] = value;
+                });
+            });
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(arena, player)) {
+                player.pos.y--;
+                merge(arena, player);
+                playerReset();
+                arenaSweep();
+            }
+            dropCounter = 0;
+        }
+
+        function playerMove(dir) {
+            player.pos.x += dir;
+            if (collide(arena, player)) player.pos.x -= dir;
+        }
+
+        function playerReset() {
+            const pieces = 'ILJOTSZ';
+            player.matrix = [[0,1,0],[1,1,1],[0,0,0]]; // Lihtsustatud T-kujund
+            player.pos.y = 0;
+            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+            if (collide(arena, player)) {
+                arena.forEach(row => row.fill(0));
+                score = 0;
+                updateScore();
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').innerText = score;
+        }
+
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+
+        function update(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) playerDrop();
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        const arena = createMatrix(12, 20);
+        const player = { pos: {x: 0, y: 0}, matrix: null };
+        let score = 0;
+
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === 37) playerMove(-1);
+            else if (event.keyCode === 39) playerMove(1);
+            else if (event.keyCode === 40) playerDrop();
+        });
+
+        playerReset();
+        updateScore();
+        update();
     </script>
 </body>
 </html>
